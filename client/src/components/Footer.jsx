@@ -24,7 +24,15 @@ export default function Footer() {
               DigitalDefender makes cybersecurity simple, practical, and accessible. Discover how online threats work, how your personal data gets exposed, and how to protect yourself with confidence.
             </p>
 
-            <div className="flex items-center gap-3 pt-2">
+            <div className="flex flex-wrap items-center gap-3 pt-1">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-300">
+                <span className="w-2 h-2 rounded-full bg-[#1FA8A0]" />
+                <span className="text-slate-400">Platform Administrator:</span>
+                <span className="font-semibold text-white">Bharath Chandu</span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 pt-1">
               <a
                 href="https://www.instagram.com/digital.defender/"
                 target="_blank"
@@ -77,7 +85,7 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-          <p>© 2026 DigitalDefender Media Platform. Stay Smarter. Stay Safer.</p>
+          <p>© 2026 DigitalDefender Media Platform • Administrator: <span className="text-slate-300 font-medium">Bharath Chandu</span>. Stay Smarter. Stay Safer.</p>
           <div className="flex items-center gap-6">
             <a 
               href="https://www.instagram.com/digital.defender/" 
