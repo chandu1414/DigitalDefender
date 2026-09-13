@@ -99,7 +99,7 @@ async function seedDatabase() {
       password_hash,
       role: 'admin'
     });
-    console.log(`Created Admin user: ${adminEmail} (password: AdminPassword2026!)`);
+    console.log(`Created Admin user: ${adminEmail}`);
   } else {
     console.log(`Admin user already exists: ${adminEmail}`);
   }
@@ -116,7 +116,7 @@ async function seedDatabase() {
       password_hash,
       role: 'user'
     });
-    console.log(`Created Sample user: ${sampleEmail} (password: UserPassword123!)`);
+    console.log(`Created Sample user: ${sampleEmail}`);
   } else {
     console.log(`Sample user already exists: ${sampleEmail}`);
   }
