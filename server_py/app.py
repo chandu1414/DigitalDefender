@@ -1,7 +1,7 @@
 import os
 import re
 from datetime import datetime, timezone
-from flask import Flask, request, jsonify, g, send_file, send_from_directory
+from flask import Flask, request, jsonify, g, send_file, send_from_directory, Response
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
@@ -327,22 +327,25 @@ def admin_delete_resource(resource_id):
 @app.route('/robots.txt', methods=['GET'])
 def serve_robots():
     robots_path = os.path.join(CLIENT_DIST, 'robots.txt')
+    if not os.path.exists(robots_path):
+        robots_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'client', 'public', 'robots.txt'))
     if os.path.exists(robots_path):
-        return send_file(robots_path, mimetype='text/plain')
-    fallback_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'client', 'public', 'robots.txt'))
-    if os.path.exists(fallback_path):
-        return send_file(fallback_path, mimetype='text/plain')
-    return "User-agent: *\nAllow: /\nSitemap: https://digitaldefender.onrender.com/sitemap.xml\n", 200, {'Content-Type': 'text/plain; charset=utf-8'}
+        with open(robots_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+        return Response(content, mimetype='text/plain; charset=utf-8')
+    return Response("User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /api/\n\nSitemap: https://digitaldefender.onrender.com/sitemap.xml\n", mimetype='text/plain; charset=utf-8')
 
 @app.route('/sitemap.xml', methods=['GET'])
+@app.route('//sitemap.xml', methods=['GET'])
 def serve_sitemap():
     sitemap_path = os.path.join(CLIENT_DIST, 'sitemap.xml')
+    if not os.path.exists(sitemap_path):
+        sitemap_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'client', 'public', 'sitemap.xml'))
     if os.path.exists(sitemap_path):
-        return send_file(sitemap_path, mimetype='application/xml')
-    fallback_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'client', 'public', 'sitemap.xml'))
-    if os.path.exists(fallback_path):
-        return send_file(fallback_path, mimetype='application/xml')
-    return "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\"><url><loc>https://digitaldefender.onrender.com/</loc></url></urlset>", 200, {'Content-Type': 'application/xml; charset=utf-8'}
+        with open(sitemap_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+        return Response(content, mimetype='application/xml; charset=utf-8')
+    return Response("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\"><url><loc>https://digitaldefender.onrender.com/</loc></url></urlset>", mimetype='application/xml; charset=utf-8')
 
 # --- Static React Client Serving (Production mode on port 5000) ---
 
