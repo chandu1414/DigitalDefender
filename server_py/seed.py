@@ -16,20 +16,20 @@ def seed_database():
     print("--- Starting Python Flask DigitalDefender Database Seeding ---")
     init_db()
 
-    # 1. Admin User
-    admin_email = "admin@digitaldefender.io"
+    admin_email = os.environ.get("ADMIN_EMAIL", "admin@digitaldefender.io")
     admin = get_user_by_email(admin_email, include_password=True)
     if not admin:
-        admin_hash = generate_password_hash("AdminPassword2026!")
+        admin_raw_pass = os.environ.get("ADMIN_PASSWORD", "AdminPassword2026!")
+        admin_hash = generate_password_hash(admin_raw_pass)
         admin = create_user(
             name="Bharath Chandu",
             email=admin_email,
             password_hash=admin_hash,
             role="admin"
         )
-        print(f"Created Admin: {admin_email} (password: AdminPassword2026!)")
+        print(f"Created Admin account: {admin_email}")
     else:
-        print(f"Admin already exists: {admin_email}")
+        print(f"Admin account verified: {admin_email}")
 
     # 2. Sample User
     sample_email = "alex@example.com"
@@ -42,9 +42,9 @@ def seed_database():
             password_hash=sample_hash,
             role="user"
         )
-        print(f"Created Sample user: {sample_email} (password: UserPassword123!)")
+        print(f"Created Sample user: {sample_email}")
     else:
-        print(f"Sample user already exists: {sample_email}")
+        print(f"Sample user verified: {sample_email}")
 
     # 3. Seed Study Notes
     sample_resources = [

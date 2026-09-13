@@ -4,8 +4,8 @@ import { Shield, Lock, Mail, AlertCircle, ArrowRight, KeyRound } from 'lucide-re
 import { useAuth } from '../context/AuthContext';
 
 export default function AdminLoginPage() {
-  const [email, setEmail] = useState('admin@digitaldefender.io');
-  const [password, setPassword] = useState('AdminPassword2026!');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -72,7 +72,7 @@ export default function AdminLoginPage() {
                 <input
                   type="email"
                   required
-                  placeholder="admin@digitaldefender.io"
+                  placeholder="admin@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full pl-10 pr-4 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-amber-500 transition-colors"

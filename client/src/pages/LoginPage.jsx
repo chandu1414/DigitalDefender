@@ -30,17 +30,6 @@ export default function LoginPage() {
     }
   };
 
-  // Demo user credentials quick fill
-  const handleQuickFill = (userType) => {
-    if (userType === 'user') {
-      setEmail('alex@example.com');
-      setPassword('UserPassword123!');
-    } else if (userType === 'admin') {
-      setEmail('admin@digitaldefender.io');
-      setPassword('AdminPassword2026!');
-    }
-  };
-
   return (
     <div className="min-h-screen bg-[#0B1120] text-slate-100 flex items-center justify-center p-4 sm:p-6 py-16">
       <div className="max-w-md w-full">
@@ -141,29 +130,6 @@ export default function LoginPage() {
               )}
             </button>
           </form>
-
-          {/* Demo Account Quick-Fill Buttons */}
-          <div className="mt-6 pt-5 border-t border-slate-800">
-            <span className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold block text-center mb-3">
-              Quick Test Credentials
-            </span>
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              <button
-                type="button"
-                onClick={() => handleQuickFill('user')}
-                className="py-1.5 px-2 bg-slate-900 hover:bg-slate-800 border border-slate-700 rounded-lg text-slate-300 text-center transition-colors"
-              >
-                Auto-fill User
-              </button>
-              <button
-                type="button"
-                onClick={() => handleQuickFill('admin')}
-                className="py-1.5 px-2 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 rounded-lg text-amber-300 text-center transition-colors font-medium"
-              >
-                Auto-fill Admin
-              </button>
-            </div>
-          </div>
 
           <div className="mt-6 text-center text-xs text-slate-400">
             Don't have an account yet?{' '}

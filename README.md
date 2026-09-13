@@ -68,21 +68,14 @@ A modern, full-stack cybersecurity and digital-safety media platform built with 
 
 ---
 
-## 🔑 Default Credentials
+## 🔒 Administrator & Authentication Configuration
 
-### Administrator Account
-- **Email**: `admin@digitaldefender.io`
-- **Password**: `AdminPassword2026!`
-- **Role**: `admin`
-- **Access**: Full access to `/admin` dashboard and all study downloads.
+Administrator access and session security can be configured securely via environment variables:
+- `JWT_SECRET`: Cryptographic key used to sign and verify session JWTs.
+- `ADMIN_EMAIL`: Email address for the platform administrator (default: `admin@digitaldefender.io` or your custom email).
+- `ADMIN_PASSWORD`: Secure administrator password (set in your private cloud environment variables; automatically hashed via salted Werkzeug security).
 
-### Sample User Account
-- **Email**: `alex@example.com`
-- **Password**: `UserPassword123!`
-- **Role**: `user`
-- **Access**: Standard user account with pre-seeded downloads.
-
-*(Both login screens also include 1-click test credentials autofill buttons for convenience)*
+Passwords are cryptographically hashed and never stored or displayed in plaintext anywhere on the platform.
 
 ---
 
