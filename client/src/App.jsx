@@ -1,5 +1,5 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -13,10 +13,38 @@ import ResetPasswordPage from './pages/ResetPasswordPage';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminLoginPage from './pages/AdminLoginPage';
 
+function RouteSEO() {
+  const location = useLocation();
+
+  useEffect(() => {
+    const titles = {
+      '/': 'DigitalDefender | Cybersecurity & Digital Safety',
+      '/basics': 'Basics of Cybersecurity | DigitalDefender',
+      '/resources': 'Cybersecurity Study Notes & Resources | DigitalDefender',
+      '/login': 'Sign In | DigitalDefender',
+      '/signup': 'Create Free Account | DigitalDefender',
+      '/forgot-password': 'Reset Password | DigitalDefender',
+      '/admin': 'Admin Dashboard | DigitalDefender',
+      '/admin/login': 'Admin Sign In | DigitalDefender'
+    };
+
+    const currentTitle = titles[location.pathname] || 'DigitalDefender | Cybersecurity & Digital Safety';
+    document.title = currentTitle;
+
+    const canonical = document.querySelector("link[rel='canonical']");
+    if (canonical) {
+      canonical.setAttribute('href', `https://digitaldefender.onrender.com${location.pathname === '/' ? '/' : location.pathname}`);
+    }
+  }, [location]);
+
+  return null;
+}
+
 export default function App() {
   return (
     <AuthProvider>
       <Router>
+        <RouteSEO />
         <div className="flex flex-col min-h-screen bg-[#0B1120] text-slate-100 selection:bg-[#1FA8A0] selection:text-white">
           <Navbar />
           <main className="flex-1">

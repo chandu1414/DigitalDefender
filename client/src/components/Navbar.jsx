@@ -60,6 +60,12 @@ export default function Navbar() {
           >
             Topics
           </a>
+          <a 
+            href="/#about" 
+            className="text-sm font-medium text-slate-300 hover:text-[#1FA8A0] transition-colors"
+          >
+            About
+          </a>
           <Link 
             to="/resources" 
             className={`text-sm font-medium transition-colors hover:text-[#1FA8A0] flex items-center gap-1.5 ${
@@ -173,6 +179,13 @@ export default function Navbar() {
               className="text-slate-200 hover:text-[#1FA8A0] font-medium text-base py-1"
             >
               Explore Topics
+            </a>
+            <a
+              href="/#about"
+              onClick={() => setMobileMenuOpen(false)}
+              className="text-slate-200 hover:text-[#1FA8A0] font-medium text-base py-1"
+            >
+              About &amp; Creator
             </a>
             <Link
               to="/resources"

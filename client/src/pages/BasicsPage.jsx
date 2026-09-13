@@ -135,6 +135,15 @@ export default function BasicsPage() {
         </div>
 
         {/* Explainers List */}
+        <div className="mb-8">
+          <h2 className="text-2xl sm:text-3xl font-bold text-white">
+            Foundational Security Guides
+          </h2>
+          <p className="text-slate-400 text-sm mt-1">
+            Plain-English breakdowns of fundamental concepts to secure your digital footprint.
+          </p>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-20">
           {filteredExplainers.map((item) => {
             const Icon = item.icon;

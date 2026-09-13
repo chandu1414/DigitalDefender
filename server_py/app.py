@@ -322,6 +322,28 @@ def admin_delete_resource(resource_id):
     delete_resource(resource_id)
     return jsonify({'message': 'Resource deleted successfully.'})
 
+# --- Search Engine Discovery Routes ---
+
+@app.route('/robots.txt', methods=['GET'])
+def serve_robots():
+    robots_path = os.path.join(CLIENT_DIST, 'robots.txt')
+    if os.path.exists(robots_path):
+        return send_file(robots_path, mimetype='text/plain')
+    fallback_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'client', 'public', 'robots.txt'))
+    if os.path.exists(fallback_path):
+        return send_file(fallback_path, mimetype='text/plain')
+    return "User-agent: *\nAllow: /\nSitemap: https://digitaldefender.onrender.com/sitemap.xml\n", 200, {'Content-Type': 'text/plain; charset=utf-8'}
+
+@app.route('/sitemap.xml', methods=['GET'])
+def serve_sitemap():
+    sitemap_path = os.path.join(CLIENT_DIST, 'sitemap.xml')
+    if os.path.exists(sitemap_path):
+        return send_file(sitemap_path, mimetype='application/xml')
+    fallback_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'client', 'public', 'sitemap.xml'))
+    if os.path.exists(fallback_path):
+        return send_file(fallback_path, mimetype='application/xml')
+    return "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\"><url><loc>https://digitaldefender.onrender.com/</loc></url></urlset>", 200, {'Content-Type': 'application/xml; charset=utf-8'}
+
 # --- Static React Client Serving (Production mode on port 5000) ---
 
 @app.route('/', defaults={'path': ''})

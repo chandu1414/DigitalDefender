@@ -235,6 +235,7 @@ export default function ResourcesPage() {
         )}
 
         {/* Resources Grid */}
+        <h2 className="sr-only">Available Study Guides and Defensive Checklists</h2>
         {loading ? (
           <div className="py-20 text-center text-slate-400">
             <div className="w-8 h-8 border-2 border-[#1FA8A0] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
