@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: digitaldefender
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn --chdir server_py app:app
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
