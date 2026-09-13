@@ -22,7 +22,7 @@ def seed_database():
     if not admin:
         admin_hash = generate_password_hash("AdminPassword2026!")
         admin = create_user(
-            name="DigitalDefender Admin",
+            name="Bharath Chandu",
             email=admin_email,
             password_hash=admin_hash,
             role="admin"

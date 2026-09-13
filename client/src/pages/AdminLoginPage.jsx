@@ -47,7 +47,7 @@ export default function AdminLoginPage() {
             Administrator Console
           </h2>
           <p className="text-slate-400 text-sm mt-1">
-            Authenticate to manage platform users, view metrics, and publish study notes
+            Platform Administrator: <span className="text-amber-300 font-medium">Bharath Chandu</span>
           </p>
         </div>
 

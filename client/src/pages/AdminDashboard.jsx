@@ -231,9 +231,10 @@ export default function AdminDashboard() {
               <Shield className="w-3.5 h-3.5" />
               Administrative Control Panel
             </div>
-            <h1 className="text-3xl font-extrabold text-white">DigitalDefender Admin</h1>
+            <h1 className="text-3xl font-extrabold text-white">DigitalDefender Admin Portal</h1>
             <p className="text-slate-400 text-sm mt-1">
-              Logged in as <span className="text-amber-300 font-medium">{user?.email}</span>
+              Administrator: <span className="text-white font-semibold">{user?.name || 'Bharath Chandu'}</span>{' '}
+              <span className="text-amber-300">({user?.email})</span>
             </p>
           </div>
 
