@@ -1,0 +1,147 @@
+{
+  "users": [
+    {
+      "id": "c4d94aaf-8650-4f65-ae1c-9caf1bd6f8f8",
+      "name": "DigitalDefender Admin",
+      "email": "admin@digitaldefender.io",
+      "password_hash": "$2a$10$4W/rEFKNjczEfaaOrKYLvewJZ8JMfSaXtGnPr8aYTFoT7kBAkC.hu",
+      "role": "admin",
+      "status": "active",
+      "created_at": "2026-09-13T09:17:14.342Z",
+      "last_login_at": "2026-09-13T09:24:58.178Z",
+      "download_count": 0
+    },
+    {
+      "id": "a4c251b3-8aa3-4f85-9d06-fef1beae771a",
+      "name": "Alex Rivera",
+      "email": "alex@example.com",
+      "password_hash": "$2a$10$mZrJBCTXDV0eLLzBbmnx6.OuRCdl9OrmpSPwbWDT5X2U1drAVwBtS",
+      "role": "user",
+      "status": "active",
+      "created_at": "2026-09-13T09:17:14.522Z",
+      "last_login_at": "2026-09-13T09:18:56.244Z",
+      "download_count": 3
+    },
+    {
+      "id": "7ec73643-bcc5-47f1-b30e-9a1dde968ec4",
+      "name": "Jane Test",
+      "email": "tester_1789291497541@example.com",
+      "password_hash": "$2a$10$U9RnsPJvlk6j/XJt8S4bSOmPfJWISQ8bEDk84mL/tZoigqI7pqLJW",
+      "role": "user",
+      "status": "active",
+      "created_at": "2026-09-13T09:24:57.875Z",
+      "last_login_at": "2026-09-13T09:24:57.875Z",
+      "download_count": 1
+    }
+  ],
+  "resources": [
+    {
+      "id": "06167d65-d447-4a5d-a8cc-dbc799ece010",
+      "title": "Personal Threat Modeling 101",
+      "description": "A pragmatic framework for everyday internet users to identify their high-value digital assets, assess realistic adversaries, and prioritize defensive safeguards.",
+      "topic": "Cybersecurity",
+      "file_name": "Personal_Threat_Modeling_Guide_2026.pdf",
+      "file_path": "C:\\Users\\bhara\\OneDrive\\Desktop\\DigitalDefender\\server\\uploads\\resources\\Personal_Threat_Modeling_Guide_2026.pdf",
+      "file_size": "2.6 KB",
+      "author": "DigitalDefender Security Team",
+      "download_count": 3,
+      "created_at": "2026-09-13T09:17:14.586Z"
+    },
+    {
+      "id": "d5388b79-f515-4dbb-9f29-f0df9cbf53ed",
+      "title": "OSINT & Digital Footprint Audit Checklist",
+      "description": "Learn how open-source intelligence practitioners discover your accounts, exposed phone numbers, and location trails — and how to remove them.",
+      "topic": "Privacy & OSINT",
+      "file_name": "OSINT_Digital_Footprint_Audit.pdf",
+      "file_path": "C:\\Users\\bhara\\OneDrive\\Desktop\\DigitalDefender\\server\\uploads\\resources\\OSINT_Digital_Footprint_Audit.pdf",
+      "file_size": "2.6 KB",
+      "author": "DigitalDefender Security Team",
+      "download_count": 1,
+      "created_at": "2026-09-13T09:17:14.613Z"
+    },
+    {
+      "id": "b60cffd0-5e52-49cf-93f3-ef1e4b34803b",
+      "title": "Home Wi-Fi Hardening & Router Security",
+      "description": "Transform your default ISP router into a fortified gatekeeper for all smart TVs, smart home IoT, laptops, and mobile devices.",
+      "topic": "Internet Safety",
+      "file_name": "Home_WiFi_Hardening_Handbook.pdf",
+      "file_path": "C:\\Users\\bhara\\OneDrive\\Desktop\\DigitalDefender\\server\\uploads\\resources\\Home_WiFi_Hardening_Handbook.pdf",
+      "file_size": "2.7 KB",
+      "author": "DigitalDefender Security Team",
+      "download_count": 0,
+      "created_at": "2026-09-13T09:17:14.637Z"
+    },
+    {
+      "id": "702dc2ff-b7b3-439c-8ee6-32f322cf6407",
+      "title": "Mastering 2FA & Password Management",
+      "description": "The definitive guide to eliminating credential stuffing: password managers, hardware security keys, and modern passkeys.",
+      "topic": "Digital Protection",
+      "file_name": "Mastering_2FA_and_Password_Managers.pdf",
+      "file_path": "C:\\Users\\bhara\\OneDrive\\Desktop\\DigitalDefender\\server\\uploads\\resources\\Mastering_2FA_and_Password_Managers.pdf",
+      "file_size": "2.7 KB",
+      "author": "DigitalDefender Security Team",
+      "download_count": 0,
+      "created_at": "2026-09-13T09:17:14.679Z"
+    },
+    {
+      "id": "29306588-a186-4f90-b224-b70f8261f465",
+      "title": "Recognizing Phishing & Psychological Triggers",
+      "description": "Understand how modern cybercriminals exploit urgency, authority, and curiosity to deceive even tech-savvy individuals.",
+      "topic": "Online Scams",
+      "file_name": "Phishing_and_Social_Engineering_Field_Guide.pdf",
+      "file_path": "C:\\Users\\bhara\\OneDrive\\Desktop\\DigitalDefender\\server\\uploads\\resources\\Phishing_and_Social_Engineering_Field_Guide.pdf",
+      "file_size": "2.7 KB",
+      "author": "DigitalDefender Security Team",
+      "download_count": 0,
+      "created_at": "2026-09-13T09:17:14.710Z"
+    },
+    {
+      "id": "e4250ae4-4b2c-4955-bd8b-75b836f65b7d",
+      "title": "Zero Trust Architecture 2026",
+      "description": "Never trust, always verify: principles for modern networks.",
+      "topic": "Cybersecurity",
+      "file_name": "zero_trust_2026.pdf",
+      "file_path": "C:\\Users\\bhara\\OneDrive\\Desktop\\DigitalDefender\\server\\uploads\\resources\\1789291498271-774367824-zero_trust_2026.pdf",
+      "file_size": "281 Bytes",
+      "author": "DigitalDefender Team",
+      "download_count": 0,
+      "created_at": "2026-09-13T09:24:58.284Z"
+    }
+  ],
+  "downloads": [
+    {
+      "id": "df464909-fbbd-44bb-aaaa-1bce077f1f3e",
+      "user_id": "a4c251b3-8aa3-4f85-9d06-fef1beae771a",
+      "resource_id": "06167d65-d447-4a5d-a8cc-dbc799ece010",
+      "downloaded_at": "2026-09-13T09:17:14.721Z"
+    },
+    {
+      "id": "35af67a8-1cc0-42dd-8844-b7ccba496a00",
+      "user_id": "a4c251b3-8aa3-4f85-9d06-fef1beae771a",
+      "resource_id": "d5388b79-f515-4dbb-9f29-f0df9cbf53ed",
+      "downloaded_at": "2026-09-13T09:17:14.726Z"
+    },
+    {
+      "id": "233036ac-07a1-4a29-8a70-6b65bdd3a6f1",
+      "user_id": "a4c251b3-8aa3-4f85-9d06-fef1beae771a",
+      "resource_id": "06167d65-d447-4a5d-a8cc-dbc799ece010",
+      "downloaded_at": "2026-09-13T09:18:56.564Z"
+    },
+    {
+      "id": "fb37a5e7-6ed1-4f62-9f84-46a6823fca37",
+      "user_id": "7ec73643-bcc5-47f1-b30e-9a1dde968ec4",
+      "resource_id": "06167d65-d447-4a5d-a8cc-dbc799ece010",
+      "downloaded_at": "2026-09-13T09:24:57.928Z"
+    }
+  ],
+  "password_resets": [
+    {
+      "id": "7dac07c9-d871-47d7-8504-d65bb5109b96",
+      "user_id": "a4c251b3-8aa3-4f85-9d06-fef1beae771a",
+      "token": "df831512529655161096cd0c4719e0e5a5eb1c7274ba77ac621c3ff4a8138fff",
+      "expires_at": "2026-09-13T10:18:56.622Z",
+      "used": false,
+      "created_at": "2026-09-13T09:18:56.622Z"
+    }
+  ]
+}

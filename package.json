@@ -1,0 +1,25 @@
+{
+  "name": "digitaldefender",
+  "version": "1.0.0",
+  "description": "DigitalDefender - Cybersecurity and Digital-Safety Media Platform (Flask Backend)",
+  "scripts": {
+    "start": "python server_py/app.py",
+    "server": "python server_py/app.py",
+    "server:flask": "python server_py/app.py",
+    "server:node": "node server/src/index.js",
+    "client": "npm run dev --prefix client",
+    "build": "npm run build --prefix client",
+    "seed": "python server_py/seed.py",
+    "test": "python server_py/test_flask_api.py"
+  },
+  "keywords": [
+    "cybersecurity",
+    "digital-safety",
+    "privacy",
+    "osint",
+    "education",
+    "flask"
+  ],
+  "author": "DigitalDefender",
+  "license": "MIT"
+}
