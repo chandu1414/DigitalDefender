@@ -1,5 +1,6 @@
 import os
 import re
+import secrets
 from datetime import datetime, timezone
 from flask import Flask, request, jsonify, g, send_file, send_from_directory, Response
 from flask_cors import CORS
@@ -24,10 +25,15 @@ from db import (
     create_password_reset,
     get_valid_password_reset,
     mark_password_reset_used,
-    get_platform_stats
+    get_platform_stats,
+    save_pending_signup,
+    get_pending_signup,
+    increment_otp_attempts,
+    delete_pending_signup
 )
 from auth_utils import encode_token, token_required, admin_required, optional_token
 from seed import seed_database
+from email_service import send_otp_email
 
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50 MB max upload
@@ -86,15 +92,119 @@ def signup():
     if existing:
         return jsonify({'error': 'An account with this email already exists. Please log in instead.'}), 409
 
+    # Generate cryptographically secure 6-digit OTP code (100000 - 999999)
+    otp_code = f"{secrets.randbelow(900000) + 100000}"
     password_hash = generate_password_hash(password)
-    new_user = create_user(name=name, email=email, password_hash=password_hash, role='user')
-    token = encode_token(new_user)
 
+    # Save to pending email verifications table with 10-minute expiry
+    save_pending_signup(name=name, email=email, password_hash=password_hash, otp_code=otp_code, expires_in_minutes=10)
+
+    # Dispatch verification email
+    email_result = send_otp_email(to_email=email, to_name=name, otp_code=otp_code)
+
+    response_data = {
+        'message': f'Verification code sent to {email}. Please enter the 6-digit code to complete registration.',
+        'requireOtp': True,
+        'email': email
+    }
+    # In simulation mode, provide dev hint so developer/user is never locked out
+    if email_result.get('mode') == 'simulated':
+        response_data['simulatedNotice'] = f"Simulation mode: OTP code is {otp_code} (configure SMTP on Render for production)"
+        response_data['devOtp'] = otp_code
+
+    return jsonify(response_data), 200
+
+@app.route('/api/auth/verify-otp', methods=['POST'])
+def verify_otp():
+    data = request.get_json() or {}
+    email = data.get('email', '').strip().lower()
+    otp = data.get('otp', '').strip()
+
+    if not email or not otp:
+        return jsonify({'error': 'Please provide both email and 6-digit verification code.'}), 400
+
+    pending = get_pending_signup(email)
+    if not pending:
+        existing = get_user_by_email(email)
+        if existing:
+            return jsonify({'error': 'This email is already verified. Please log in.'}), 400
+        return jsonify({'error': 'No pending registration found for this email, or the code expired. Please sign up again.'}), 404
+
+    # Brute-force lockout after 5 incorrect attempts
+    if pending.get('attempts', 0) >= 5:
+        delete_pending_signup(email)
+        return jsonify({'error': 'Too many incorrect attempts. For security, please sign up again to receive a new code.'}), 429
+
+    # Expiration check
+    expires_str = pending['expires_at'].replace('Z', '')
+    expires_dt = datetime.fromisoformat(expires_str)
+    if datetime.now(timezone.utc) > expires_dt:
+        delete_pending_signup(email)
+        return jsonify({'error': 'Verification code has expired. Please request a new one.'}), 400
+
+    # OTP validation
+    if pending['otp_code'] != otp:
+        increment_otp_attempts(email)
+        remaining = 5 - (pending.get('attempts', 0) + 1)
+        return jsonify({'error': f'Incorrect verification code. {remaining} attempt(s) remaining.'}), 400
+
+    # Successful verification: transfer user into users table
+    new_user = create_user(
+        name=pending['name'],
+        email=pending['email'],
+        password_hash=pending['password_hash'],
+        role='user'
+    )
+    delete_pending_signup(email)
+
+    token = encode_token(new_user)
     return jsonify({
-        'message': 'Account created successfully!',
+        'message': 'Email verified successfully! Welcome to DigitalDefender.',
         'user': new_user,
         'token': token
     }), 201
+
+@app.route('/api/auth/resend-otp', methods=['POST'])
+def resend_otp():
+    data = request.get_json() or {}
+    email = data.get('email', '').strip().lower()
+
+    if not email:
+        return jsonify({'error': 'Please provide an email address.'}), 400
+
+    pending = get_pending_signup(email)
+    if not pending:
+        return jsonify({'error': 'No pending registration found for this email. Please sign up again.'}), 404
+
+    # Rate limiting: 30 seconds cooldown between resends
+    last_sent_str = pending.get('last_sent_at', '').replace('Z', '')
+    if last_sent_str:
+        last_sent_dt = datetime.fromisoformat(last_sent_str)
+        seconds_passed = (datetime.now(timezone.utc) - last_sent_dt).total_seconds()
+        if seconds_passed < 30:
+            remaining_cooldown = int(30 - seconds_passed)
+            return jsonify({'error': f'Please wait {remaining_cooldown} seconds before requesting another code.'}), 429
+
+    new_otp = f"{secrets.randbelow(900000) + 100000}"
+    save_pending_signup(
+        name=pending['name'],
+        email=pending['email'],
+        password_hash=pending['password_hash'],
+        otp_code=new_otp,
+        expires_in_minutes=10
+    )
+
+    email_result = send_otp_email(to_email=email, to_name=pending['name'], otp_code=new_otp)
+
+    response_data = {
+        'message': f'A fresh verification code has been dispatched to {email}.',
+        'email': email
+    }
+    if email_result.get('mode') == 'simulated':
+        response_data['simulatedNotice'] = f"Simulation mode: OTP code is {new_otp}"
+        response_data['devOtp'] = new_otp
+
+    return jsonify(response_data), 200
 
 @app.route('/api/auth/login', methods=['POST'])
 def login():

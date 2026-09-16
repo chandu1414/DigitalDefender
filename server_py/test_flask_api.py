@@ -43,19 +43,39 @@ class TestFlaskAPI(unittest.TestCase):
 
     def test_04_user_signup_and_login(self):
         email = f"flask_tester_{int(os.times().system * 100000)}@example.com"
-        # Signup
+        # Step 1: Signup initiates OTP
         signup_res = self.client.post('/api/auth/signup', json={
             'name': 'Flask Test User',
             'email': email,
             'password': 'SecurePassword123!'
         })
-        self.assertEqual(signup_res.status_code, 201)
+        self.assertEqual(signup_res.status_code, 200)
         data = signup_res.get_json()
-        self.assertIn('token', data)
-        self.assertNotIn('password_hash', data['user'])
-        print("[PASS] User signup succeeded without password hash exposure.")
+        self.assertTrue(data.get('requireOtp'))
+        self.assertIn('devOtp', data)
+        otp_code = data['devOtp']
+        print("[PASS] User signup initiated with 6-digit OTP dispatch.")
 
-        # Login
+        # Step 2: Verify with incorrect OTP (should fail with 400)
+        bad_verify = self.client.post('/api/auth/verify-otp', json={
+            'email': email,
+            'otp': '999999' if otp_code != '999999' else '111111'
+        })
+        self.assertEqual(bad_verify.status_code, 400)
+        print("[PASS] Incorrect OTP code properly rejected with 400.")
+
+        # Step 3: Verify with correct OTP (should activate user and return 201)
+        verify_res = self.client.post('/api/auth/verify-otp', json={
+            'email': email,
+            'otp': otp_code
+        })
+        self.assertEqual(verify_res.status_code, 201)
+        verify_data = verify_res.get_json()
+        self.assertIn('token', verify_data)
+        self.assertNotIn('password_hash', verify_data['user'])
+        print("[PASS] Valid OTP code successfully verified and account activated.")
+
+        # Step 4: Login with verified account
         login_res = self.client.post('/api/auth/login', json={
             'email': email,
             'password': 'SecurePassword123!'
@@ -64,7 +84,7 @@ class TestFlaskAPI(unittest.TestCase):
         login_data = login_res.get_json()
         self.assertIn('token', login_data)
         self.assertNotIn('password_hash', login_data['user'])
-        print("[PASS] User login succeeded.")
+        print("[PASS] User login succeeded with verified account.")
 
     def test_05_authenticated_gated_download(self):
         # Login sample user

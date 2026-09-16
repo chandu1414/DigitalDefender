@@ -70,6 +70,20 @@ def init_db():
     )
     ''')
 
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS email_verifications (
+        id TEXT PRIMARY KEY,
+        email TEXT NOT NULL UNIQUE,
+        name TEXT NOT NULL,
+        password_hash TEXT NOT NULL,
+        otp_code TEXT NOT NULL,
+        expires_at TEXT NOT NULL,
+        attempts INTEGER NOT NULL DEFAULT 0,
+        last_sent_at TEXT NOT NULL,
+        created_at TEXT NOT NULL
+    )
+    ''')
+
     conn.commit()
     conn.close()
 
@@ -287,3 +301,58 @@ def get_platform_stats():
         'totalDownloads': total_downloads,
         'totalResources': total_resources
     }
+
+# --- Email Verification (OTP) Queries ---
+
+def save_pending_signup(name, email, password_hash, otp_code, expires_in_minutes=10):
+    conn = get_connection()
+    cursor = conn.cursor()
+    now_dt = datetime.now(timezone.utc)
+    now = now_dt.isoformat() + 'Z'
+    expires_at = (now_dt + timedelta(minutes=expires_in_minutes)).isoformat() + 'Z'
+    record_id = str(uuid.uuid4())
+
+    cursor.execute('''
+    INSERT INTO email_verifications (id, email, name, password_hash, otp_code, expires_at, attempts, last_sent_at, created_at)
+    VALUES (?, ?, ?, ?, ?, ?, 0, ?, ?)
+    ON CONFLICT(email) DO UPDATE SET
+        name = excluded.name,
+        password_hash = excluded.password_hash,
+        otp_code = excluded.otp_code,
+        expires_at = excluded.expires_at,
+        attempts = 0,
+        last_sent_at = excluded.last_sent_at
+    ''', (record_id, email.strip().lower(), name.strip(), password_hash, otp_code.strip(), expires_at, now, now))
+
+    conn.commit()
+    conn.close()
+    return get_pending_signup(email)
+
+def get_pending_signup(email):
+    if not email:
+        return None
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM email_verifications WHERE LOWER(email) = LOWER(?)', (email.strip(),))
+    row = cursor.fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+def increment_otp_attempts(email):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+    UPDATE email_verifications
+    SET attempts = attempts + 1
+    WHERE LOWER(email) = LOWER(?)
+    ''', (email.strip(),))
+    conn.commit()
+    conn.close()
+
+def delete_pending_signup(email):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute('DELETE FROM email_verifications WHERE LOWER(email) = LOWER(?)', (email.strip(),))
+    conn.commit()
+    conn.close()
+

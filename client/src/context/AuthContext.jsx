@@ -68,10 +68,51 @@ export function AuthProvider({ children }) {
       throw new Error(data.error || 'Failed to sign up');
     }
 
+    // If OTP verification is required, return API response to trigger Step 2 in UI
+    if (data.requireOtp) {
+      return data;
+    }
+
+    // Fallback if directly created (e.g. legacy)
+    if (data.token) {
+      localStorage.setItem('dd_token', data.token);
+      setToken(data.token);
+      setUser(data.user);
+    }
+    return data;
+  };
+
+  const verifyOtp = async (email, otp) => {
+    const res = await fetch('/api/auth/verify-otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, otp })
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || 'Failed to verify code');
+    }
+
     localStorage.setItem('dd_token', data.token);
     setToken(data.token);
     setUser(data.user);
     return data.user;
+  };
+
+  const resendOtp = async (email) => {
+    const res = await fetch('/api/auth/resend-otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || 'Failed to resend code');
+    }
+
+    return data;
   };
 
   const logout = () => {
@@ -93,6 +134,8 @@ export function AuthProvider({ children }) {
       loading,
       login,
       signup,
+      verifyOtp,
+      resendOtp,
       logout,
       refreshUser,
       isAuthenticated: !!user,
