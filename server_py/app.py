@@ -325,8 +325,22 @@ def download_resource(resource_id):
     if not resource:
         return jsonify({'error': 'Resource not found.'}), 404
 
-    file_path = os.path.abspath(resource['file_path'])
-    if not os.path.exists(file_path):
+    raw_path = resource.get('file_path', '')
+    file_path = None
+    if raw_path and os.path.isabs(raw_path) and os.path.exists(raw_path):
+        file_path = raw_path
+    else:
+        # Check relative to repo root
+        candidate_rel = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', raw_path))
+        if os.path.exists(candidate_rel):
+            file_path = candidate_rel
+        else:
+            base_name = os.path.basename(raw_path.replace('\\', '/'))
+            candidate_upload = os.path.join(UPLOAD_DIR, base_name)
+            if os.path.exists(candidate_upload):
+                file_path = candidate_upload
+
+    if not file_path or not os.path.exists(file_path):
         return jsonify({'error': 'PDF file is currently unavailable on server storage.'}), 404
 
     # Record download in database
@@ -424,8 +438,22 @@ def admin_delete_resource(resource_id):
         return jsonify({'error': 'Resource not found.'}), 404
 
     try:
-        if os.path.exists(resource['file_path']):
-            os.remove(resource['file_path'])
+        raw_path = resource.get('file_path', '')
+        file_to_del = None
+        if raw_path and os.path.isabs(raw_path) and os.path.exists(raw_path):
+            file_to_del = raw_path
+        else:
+            candidate_rel = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', raw_path))
+            if os.path.exists(candidate_rel):
+                file_to_del = candidate_rel
+            else:
+                base_name = os.path.basename(raw_path.replace('\\', '/'))
+                candidate_upload = os.path.join(UPLOAD_DIR, base_name)
+                if os.path.exists(candidate_upload):
+                    file_to_del = candidate_upload
+
+        if file_to_del and os.path.exists(file_to_del):
+            os.remove(file_to_del)
     except Exception as e:
         print(f"Warning deleting physical file: {e}")
 

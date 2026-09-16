@@ -86,6 +86,11 @@ class TestFlaskAPI(unittest.TestCase):
         self.assertNotIn('password_hash', login_data['user'])
         print("[PASS] User login succeeded with verified account.")
 
+        # Clean up test user
+        with get_connection() as conn:
+            conn.execute('DELETE FROM users WHERE email = ?', (email,))
+            conn.commit()
+
     def test_05_authenticated_gated_download(self):
         # Login sample user
         login_res = self.client.post('/api/auth/login', json={
@@ -175,6 +180,12 @@ class TestFlaskAPI(unittest.TestCase):
         found = any(r['title'] == 'Flask Zero Trust Architecture 2026' for r in cat)
         self.assertTrue(found)
         print("[PASS] Uploaded PDF immediately visible in public catalog.")
+
+        # Clean up uploaded test resource
+        test_res_id = upload_res.get_json()['resource']['id']
+        del_res = self.client.delete(f'/api/admin/resources/{test_res_id}', headers={'Authorization': f'Bearer {admin_token}'})
+        self.assertEqual(del_res.status_code, 200)
+        print("[PASS] Cleaned up temporary test PDF from database and disk.")
 
     def test_08_password_reset_flow(self):
         forgot_res = self.client.post('/api/auth/forgot-password', json={'email': 'alex@example.com'})
