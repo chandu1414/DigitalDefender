@@ -328,13 +328,11 @@ def download_resource(resource_id):
     if not resource:
         return jsonify({'error': 'Resource not found.'}), 404
 
-    target_type, target = resolve_resource_file(resource.get('file_path', ''))
-    if not target_type or not target:
-        return jsonify({'error': 'PDF file is currently unavailable on server storage.'}), 404
-
     # Record download in database
     record_download(g.current_user['id'], resource['id'])
     print(f"Download recorded: User '{g.current_user['name']}' ({g.current_user['email']}) downloaded '{resource['title']}'.")
+
+    target_type, target = resolve_resource_file(resource.get('file_path', ''))
 
     if target_type == 'url':
         try:
@@ -346,15 +344,27 @@ def download_resource(resource_id):
                 mimetype='application/pdf'
             )
         except Exception as e:
-            print(f"[Storage] Streaming cloud file directly to user via redirect: {e}")
-            return redirect(target)
+            print(f"[Storage] Cloud fetch failed ({e}), attempting local fallback...")
+            base_name = os.path.basename(resource.get('file_name', ''))
+            local_candidate = os.path.join(UPLOAD_DIR, base_name)
+            if os.path.exists(local_candidate):
+                return send_file(
+                    local_candidate,
+                    as_attachment=True,
+                    download_name=resource['file_name'],
+                    mimetype='application/pdf'
+                )
+            return jsonify({'error': 'PDF file is currently unavailable on server storage.'}), 404
 
-    return send_file(
-        target,
-        as_attachment=True,
-        download_name=resource['file_name'],
-        mimetype='application/pdf'
-    )
+    if target_type == 'local' and target and os.path.exists(target):
+        return send_file(
+            target,
+            as_attachment=True,
+            download_name=resource['file_name'],
+            mimetype='application/pdf'
+        )
+
+    return jsonify({'error': 'PDF file is currently unavailable on server storage.'}), 404
 
 # --- Admin Routes ---
 
