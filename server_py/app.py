@@ -1,8 +1,10 @@
 import os
+import io
 import re
 import secrets
+import urllib.request
 from datetime import datetime, timezone
-from flask import Flask, request, jsonify, g, send_file, send_from_directory, Response
+from flask import Flask, request, jsonify, g, send_file, send_from_directory, Response, redirect
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
@@ -34,6 +36,7 @@ from db import (
 from auth_utils import encode_token, token_required, admin_required, optional_token
 from seed import seed_database
 from email_service import send_otp_email
+from storage import save_resource_file, delete_resource_file, resolve_resource_file
 
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50 MB max upload
@@ -325,30 +328,29 @@ def download_resource(resource_id):
     if not resource:
         return jsonify({'error': 'Resource not found.'}), 404
 
-    raw_path = resource.get('file_path', '')
-    file_path = None
-    if raw_path and os.path.isabs(raw_path) and os.path.exists(raw_path):
-        file_path = raw_path
-    else:
-        # Check relative to repo root
-        candidate_rel = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', raw_path))
-        if os.path.exists(candidate_rel):
-            file_path = candidate_rel
-        else:
-            base_name = os.path.basename(raw_path.replace('\\', '/'))
-            candidate_upload = os.path.join(UPLOAD_DIR, base_name)
-            if os.path.exists(candidate_upload):
-                file_path = candidate_upload
-
-    if not file_path or not os.path.exists(file_path):
+    target_type, target = resolve_resource_file(resource.get('file_path', ''))
+    if not target_type or not target:
         return jsonify({'error': 'PDF file is currently unavailable on server storage.'}), 404
 
     # Record download in database
     record_download(g.current_user['id'], resource['id'])
     print(f"Download recorded: User '{g.current_user['name']}' ({g.current_user['email']}) downloaded '{resource['title']}'.")
 
+    if target_type == 'url':
+        try:
+            req = urllib.request.urlopen(target)
+            return send_file(
+                io.BytesIO(req.read()),
+                as_attachment=True,
+                download_name=resource['file_name'],
+                mimetype='application/pdf'
+            )
+        except Exception as e:
+            print(f"[Storage] Streaming cloud file directly to user via redirect: {e}")
+            return redirect(target)
+
     return send_file(
-        file_path,
+        target,
         as_attachment=True,
         download_name=resource['file_name'],
         mimetype='application/pdf'
@@ -389,7 +391,7 @@ def admin_upload_resource():
     title = request.form.get('title', '').strip()
     topic = request.form.get('topic', '').strip()
     description = request.form.get('description', 'No description provided.').strip()
-    author = request.form.get('author', 'DigitalDefender Security Team').strip()
+    author = request.form.get('author', 'Bharath Chand').strip()
 
     if 'pdf' not in request.files:
         return jsonify({'error': 'Please select a PDF file to upload.'}), 400
@@ -410,17 +412,16 @@ def admin_upload_resource():
     safe_name = secure_filename(file.filename) or 'resource.pdf'
     timestamp = int(datetime.now(timezone.utc).timestamp())
     saved_filename = f"{timestamp}-{safe_name}"
-    save_path = os.path.join(UPLOAD_DIR, saved_filename)
-    file.save(save_path)
 
-    file_size_formatted = format_bytes(os.path.getsize(save_path))
+    upload_result = save_resource_file(file, saved_filename)
+    file_size_formatted = format_bytes(upload_result['file_size_bytes'])
 
     new_resource = create_resource(
         title=title,
         description=description,
         topic=topic,
         file_name=file.filename,
-        file_path=save_path,
+        file_path=upload_result['file_path'],
         file_size=file_size_formatted,
         author=author
     )
@@ -437,26 +438,7 @@ def admin_delete_resource(resource_id):
     if not resource:
         return jsonify({'error': 'Resource not found.'}), 404
 
-    try:
-        raw_path = resource.get('file_path', '')
-        file_to_del = None
-        if raw_path and os.path.isabs(raw_path) and os.path.exists(raw_path):
-            file_to_del = raw_path
-        else:
-            candidate_rel = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', raw_path))
-            if os.path.exists(candidate_rel):
-                file_to_del = candidate_rel
-            else:
-                base_name = os.path.basename(raw_path.replace('\\', '/'))
-                candidate_upload = os.path.join(UPLOAD_DIR, base_name)
-                if os.path.exists(candidate_upload):
-                    file_to_del = candidate_upload
-
-        if file_to_del and os.path.exists(file_to_del):
-            os.remove(file_to_del)
-    except Exception as e:
-        print(f"Warning deleting physical file: {e}")
-
+    delete_resource_file(resource.get('file_path', ''))
     delete_resource(resource_id)
     return jsonify({'message': 'Resource deleted successfully.'})
 
